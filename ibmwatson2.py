@@ -14,6 +14,7 @@ import string
 
 from nltk.corpus import stopwords 
 from nltk.tokenize import word_tokenize
+from violationtracker import appendToViolation
 
 
 def read_tokenize_return(data):
@@ -53,7 +54,7 @@ class PrinterProducer(fluteline.Consumer):
 			if item['results'][0]['final']:
 				text = item['results'][0]['alternatives'][0]['transcript']
 				self.output.put(text)
-				print(text)
+				# print(text)
 
 
 class ViolationChecker(fluteline.Consumer):
@@ -67,8 +68,12 @@ class ViolationChecker(fluteline.Consumer):
 		print(sentence)
 		inter = self.script.intersection(sentence)
 		if len(inter):
-			print("Violation!!!!!")
+			print("Possible violation detected! Reporting to the proctor.")
+			appendToViolation(5,1)
 			print("Detected the matches: ", inter)
+			with open("violations.txt","a") as file1:
+				file1.write(str(inter))
+
 		
 
 

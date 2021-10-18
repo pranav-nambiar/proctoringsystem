@@ -7,6 +7,7 @@ import time
 import random
 from datetime import datetime
 from save_image_to_log import save_image_log
+from violationtracker import appendToViolation
 
 font = cv2.FONT_HERSHEY_SIMPLEX
 
@@ -181,6 +182,13 @@ class HeadPoseDetector:
 
 					cv2.line(img, p1, p2, (0, 255, 255), 2)
 					cv2.line(img, tuple(x1), tuple(x2), (255, 255, 0), 2)
+
+
+
+
+
+
+					
 					# for (x, y) in marks:
 					#     cv2.circle(img, (x, y), 4, (255, 255, 0), -1)
 					# cv2.putText(img, str(p1), p1, font, 1, (0, 255, 255), 1)
@@ -201,23 +209,26 @@ class HeadPoseDetector:
 						print('Head down')
 						cheatingtype = 'HEAD_DOWN'
 						save_image_log(img,datetime.now(), cheatingtype)
-						cv2.putText(img, 'Head down', (30, 30), font, 2, (255, 255, 128), 3)
+						# cv2.putText(img, 'Head down', (30, 30), font, 2, (255, 255, 128), 3)
+						appendToViolation(1,0)
 					elif ang1 <= -48:
 						print('Head up')
 						cheatingtype = 'HEAD_UP'
 						save_image_log(img,datetime.now(), cheatingtype)
-						cv2.putText(img, 'Head up', (30, 30), font, 2, (255, 255, 128), 3)
-
+						# cv2.putText(img, 'Head up', (30, 30), font, 2, (255, 255, 128), 3)
+						appendToViolation(1,1)
 					if ang2 >= 48:
 						print('Head right')
 						cheatingtype = 'HEAD_RIGHT'
 						save_image_log(img,datetime.now(), cheatingtype)
-						cv2.putText(img, 'Head right', (90, 30), font, 2, (255, 255, 128), 3)
+						# cv2.putText(img, 'Head right', (90, 30), font, 2, (255, 255, 128), 3)
+						appendToViolation(1,2)
 					elif ang2 <= -48:
 						print('Head left')
 						cheatingtype = 'HEAD_LEFT'
 						save_image_log(img,datetime.now(), cheatingtype)
-						cv2.putText(img, 'Head left', (90, 30), font, 2, (255, 255, 128), 3)
+						# cv2.putText(img, 'Head left', (90, 30), font, 2, (255, 255, 128), 3)
+						appendToViolation(1,3)
 
 					cv2.putText(img, str(ang1), tuple(p1), font, 2, (128, 255, 255), 3)
 					cv2.putText(img, str(ang2), tuple(x1), font, 2, (255, 255, 128), 3)

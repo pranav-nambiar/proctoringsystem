@@ -12,7 +12,9 @@ from datetime import datetime
 from face_detector import get_face_detector, find_faces
 from face_landmarks import get_landmark_model, detect_marks
 from save_image_to_log import save_image_log
+from violationtracker import appendToViolation
 
+# from violationtracker import violationTracker
 
 # WAIT = random.randint(3,10)
 WAIT = 5
@@ -105,7 +107,7 @@ class EyeTracker:
             cy = int(M['m01']/M['m00'])
             if right:
                 cx += mid
-            cv2.circle(img, (cx, cy), 4, (0, 0, 255), 2)
+            # cv2.circle(img, (cx, cy), 4, (0, 0, 255), 2)
             pos = self.find_eyeball_position(end_points, cx, cy)
             return pos
         except:
@@ -150,24 +152,28 @@ class EyeTracker:
         None.
 
         """
-        if left == right and left != 0:
+        # if left == right and left != 0:
+        if left or right:
             text = ''
             if left == 1:
                 print('Looking left')
                 text = 'Looking left'
                 cheatingtype = "LOOKING_LEFT"
                 save_image_log(img,datetime.now(), cheatingtype)
+                appendToViolation(0,0)
             elif left == 2:
                 print('Looking right')
                 text = 'Looking right'
                 cheatingtype = "LOOKING_RIGHT"
                 save_image_log(img,datetime.now(), cheatingtype)
+                appendToViolation(0,1)
             elif left == 3:
                 print('Looking up')
                 text = 'Looking up'
+                appendToViolation(0,2)
             font = cv2.FONT_HERSHEY_SIMPLEX 
-            cv2.putText(img, text, (30, 30), font,  
-                    1, (0, 255, 255), 2, cv2.LINE_AA) 
+            # cv2.putText(img, text, (30, 30), font,  
+                    # 1, (0, 255, 255), 2, cv2.LINE_AA) 
 
 
     def track_eye(self, cap):
@@ -176,12 +182,12 @@ class EyeTracker:
         ret, img = cap.read()
         thresh = img.copy()
 
-        cv2.namedWindow('image')
+        # cv2.namedWindow('image')
         kernel = np.ones((9, 9), np.uint8)
 
         def nothing(x):
             pass
-        cv2.createTrackbar('threshold', 'image', 75, 255, nothing)
+        # cv2.createTrackbar('threshold', 'image', 75, 255, nothing)
 
         while(True):
             try:
@@ -200,7 +206,8 @@ class EyeTracker:
                     eyes[mask] = [255, 255, 255]
                     mid = int((shape[42][0] + shape[39][0]) // 2)
                     eyes_gray = cv2.cvtColor(eyes, cv2.COLOR_BGR2GRAY)
-                    threshold = cv2.getTrackbarPos('threshold', 'image')
+                    # threshold = cv2.getTrackbarPos('threshold', 'image')
+                    threshold = 75
                     _, thresh = cv2.threshold(eyes_gray, threshold, 255, cv2.THRESH_BINARY)
                     thresh = self.process_thresh(thresh)
 
@@ -210,13 +217,15 @@ class EyeTracker:
                     # for (x, y) in shape[36:48]:
                     #     cv2.circle(img, (x, y), 2, (255, 0, 0), -1)
 
-                cv2.imshow('eyes', img)
-                cv2.imshow("image", thresh)
+                # cv2.imshow('eyes', img)
+                # cv2.imshow("image", thresh)
 
                 # time.sleep(WAIT)
-                if cv2.waitKey(1) & 0xFF == ord('q'):
-                    break
-            except Exception:
-                print("Exception occured, ignoring")
+                # if cv2.waitKey(1) & 0xFF == ord('q'):
+                    # break
+            # except Exception:
+            #     print("Exception occured, ignoring")
+            except:
+                pass
 # cap.release()
 # cv2.destroyAllWindows()

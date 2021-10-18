@@ -13,8 +13,8 @@ from head_pose_tracker import HeadPoseDetector
 from face_verification import verifyFace
 import sys
 from ibmwatson2 import startSTT
-
-
+from violationtracker import create
+from violationtracker import appendToViolation
 # WAIT = random.randint(3, 10)
 WAIT = 5
 
@@ -60,21 +60,24 @@ def detect_person_and_phone():
                     print('Mobile Phone detected')
                     cheatingtype = "MOBILE_PHONE"
                     save_image_log(image,datetime.now(), cheatingtype)
+                    appendToViolation(3,1)
             if count == 0:
                 print('No person detected')
                 cheatingtype = "NO_PERSON"
                 save_image_log(image,datetime.now(), cheatingtype)
+                appendToViolation(2,0)
             elif count > 1: 
                 print('More than one person detected')
                 cheatingtype = "MULTIPLE_FACES"
                 save_image_log(image,datetime.now(), cheatingtype)
+                appendToViolation(2,count)
 
 
-            image = draw_outputs(image, (boxes, scores, classes, nums), class_names)
-            cv2.imshow('Prediction', image)
+            # image = draw_outputs(image, (boxes, scores, classes, nums), class_names)
+            # cv2.imshow('Prediction', image)
             # time.sleep(WAIT)
-            if cv2.waitKey(1) & 0xFF == ord('q'):
-                break
+            # if cv2.waitKey(1) & 0xFF == ord('q'):
+                # break
         except:
             pass
     
@@ -100,6 +103,9 @@ track_heads = threading.Thread(target = headpose.track_head, args=(cap,))
 
 track_audio = threading.Thread(target = startSTT)
 
+show_panel = threading.Thread(target = create)
+show_panel.setDaemon(True)
+
 
 # mouth.get_mask(cap)
 
@@ -108,13 +114,14 @@ person_phone.start()
 track_eyes.start()
 track_heads.start()
 track_audio.start()
-
+show_panel.start()
 
 person_phone.join()
 # mouth_track.join()
 track_eyes.join()
 track_heads.join()
 track_audio.join()
+show_panel.join()
 
 cap.release()
 cv2.destroyAllWindows()
